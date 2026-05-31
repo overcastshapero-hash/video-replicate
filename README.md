@@ -9,6 +9,8 @@
 - **路径一**：走小云雀完整一键出片（适合有额度时）
 - **路径二**（推荐主力）：跑完分析和 prompt 后，用产出的 `contact_sheet.jpg` + `scenes/` + `storyboard.json` + `brief.md`（按 craft 框架 + 高级模板硬化）去任意视频/图像工具继续生成。**完全不依赖小云雀**。
 
+**路径二的完整详细参考**：`references/prompt-factory.md`（强烈建议认真阅读）
+
 ## 30 秒入门（推荐）
 
 ```bash
