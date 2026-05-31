@@ -44,7 +44,7 @@ description: 把一个抖音/B站/YouTube 链接(或本地视频文件)复刻成
 ④ 出分镜表    我读 frames/ → storyboard.json     [Director]
 ⑤ 改编 brief  我写 brief.md + Critic 自检
 ⑥ 提交+轮询   bash scripts/xyq_submit.sh ... && bash scripts/xyq_poll.sh <WORKDIR>(后台)
-⑦ 意图确认处理  若 poll 退出码=2 → 运行 scripts/xyq_suggest_resume.sh <WORKDIR> 获取推荐消息 → xyq_resume.sh
+⑦ 意图确认处理  若 poll 退出码=2 → 运行 scripts/xyq_suggest_resume.sh <WORKDIR>（会给出多个高质量选项 + 完整命令，直接复制执行即可）
 ⑧ 下载+拼接   xyq_download.sh → compose.sh（自动识别横/竖屏）
 ⑨ 质检        我抽帧对照 → qc_report.md             [QC Reviewer]
 ```
@@ -65,20 +65,16 @@ description: 把一个抖音/B站/YouTube 链接(或本地视频文件)复刻成
 
 ## 长视频规则(>30 秒) —— 强烈推荐走 demo 路径
 
-**默认流程（推荐）：**
-1. 下载完成后，**必须先执行**：
+**默认流程（强烈推荐，几乎所有情况都应该走这条路）：**
+1. 下载完成后，**立即执行**：
    ```bash
    bash scripts/clip_demo.sh <WORKDIR>/source.mp4 <WORKDIR> 30
    ```
-   这会自动生成 `source_demo_30s.mp4` + `contact_sheet.jpg`（关键帧拼图，便于快速 review 结构）。
+   这会自动生成 `source_demo_30s.mp4` + 高质量 `contact_sheet.jpg`。
 
-2. 后续所有切镜、brief、生成全部基于这个 30s demo 进行，成本可控且迭代快。
+2. 后面所有步骤（切镜 → 分镜 → brief → 生成）全部基于这个 demo 进行。
 
-3. 只有在 demo 验证通过后，才考虑整片生成。
-
-**如果用户坚持整片**：
-- 必须提前明确告知 credits 消耗风险（小云雀按生成次数扣，一条 60s+ 视频经常要消耗大量额度）。
-- 建议先用 clip_demo.sh 截取一个代表性片段验证效果。
+3. 只有当你对 30s demo 的效果非常满意后，才考虑生成整片（并提前做好 credits 消耗的心理准备）。
 
 ## 最终交付
 
