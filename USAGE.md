@@ -47,9 +47,7 @@ final.mp4 + qc_report.md + contact_sheet.jpg 给你
 - 结构准确度由我们这套经过风筝等真实项目打磨的 craft + 高级模板保障
 - 你可以根据手头工具自由选择生成方式（图生视频 / 关键帧控制 / 手动微调）
 
-后面会详细说明怎么操作这条路径。
-
-**整条管道你只动嘴 + 少量确认。**
+**详细完整参考**：请阅读 `references/prompt-factory.md`（强烈建议认真读一遍）。
 
 ## 你需要准备什么(一次性,5 分钟)
 
@@ -100,6 +98,12 @@ cd ~/.claude/skills/video-replicate
 - **QC Reviewer** — 成片抽帧验收（路径一）或帮你 review prompt 包质量（路径二）
 
 ## 路径二详细操作（推荐主力用法）
+
+详细完整的操作指南和注意事项，请直接阅读：
+
+**`references/prompt-factory.md`**
+
+这里只做简要流程：
 
 1. 正常运行 `./run.sh <视频链接>`（或手动走 download + clip_demo + split_scenes）
 2. 让 Claude 用 Director + Critic 基于 contact sheet + 帧写 brief（会自动使用我们同步进来的高级模板）
