@@ -72,6 +72,44 @@ PY
   echo "[$TS iter=$i] $HEAD" >> "$LOG"
   URLS=$(echo "$PARSE" | grep "^URL:" | sed 's/^URL://')
 
+  # 情况 ERR: 检测到 API 错误码(积分不足、限流、内容审核失败等)
+  ERR_INFO=$(RAW_TXT="$RAW" python3 <<'PY' 2>/dev/null
+import os, json
+raw = os.environ["RAW_TXT"]
+i = raw.find("{")
+try: d = json.loads(raw[i:])
+except: print(""); raise SystemExit
+def walk(o):
+    if isinstance(o, dict):
+        if 'code' in o and 'message' in o and isinstance(o.get('code'),(int,float)):
+            yield o
+        for v in o.values(): yield from walk(v)
+    elif isinstance(o, list):
+        for v in o: yield from walk(v)
+errs = []
+for m in d.get("messages", []):
+    c = m.get("content")
+    if not isinstance(c, list): continue
+    for it in c:
+        if it.get("sub_type") == "biz/error":
+            data = it.get("data")
+            if isinstance(data, str):
+                try: data = json.loads(data)
+                except: continue
+            if isinstance(data, dict):
+                errs.append(data)
+if errs:
+    e = errs[-1]
+    print(f"CODE={e.get('code')}|KEY={e.get('starling_key','')}|MSG={e.get('message','')}")
+PY
+)
+  if [[ -n "$ERR_INFO" ]]; then
+    echo "[$TS] ❌ API 错误: $ERR_INFO" >> "$LOG"
+    echo "$ERR_INFO" > "$WORKDIR/xyq_error.txt"
+    exit 4   # 退出码 4 = API 业务错误(积分不足/限流/审核等)
+  fi
+
+
   # 情况 A: 检测到产物 URL — 真完成
   if [[ -n "$URLS" ]]; then
     echo "[$TS] ✅ DONE: 检测到产物 URL" >> "$LOG"

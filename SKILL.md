@@ -117,6 +117,7 @@ bash $SKILL_DIR/scripts/xyq_poll.sh <WORKDIR>
 | **0** | 真完成,有产物 URL | 跑 xyq_download.sh |
 | **2** | 意图确认中断,assistant 在问"请确认" | 读 `xyq_pending_question.txt`,把方案展示给用户;用户确认/修改后,跑 `xyq_resume.sh <WORKDIR> "<确认或修改消息>"`,再启 xyq_poll.sh 等下一轮 |
 | **3** | run 结束但既无产物又无问题 — 异常 | 把 `xyq_final.json` 给用户人工判断 |
+| **4** | API 业务错误 | 读 `xyq_error.txt` 拿 code,对照 `references/xyq-errors.md` 给用户可执行的解决方案。**常见的是积分不足(11001),不是 skill bug,要充值** |
 | **1** | 超时(默认 50 分钟) | 同 3 |
 
 意图确认是**正常流程**而不是错误。小云雀的典型节奏:
