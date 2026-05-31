@@ -35,23 +35,38 @@ description: 把一个抖音/B站/YouTube 链接(或本地视频文件)复刻成
 | Storyboard Critic | ⑤ 提交前 | `agents/storyboard-critic.md` |
 | QC Reviewer | ⑧→⑨ | `agents/qc-reviewer.md` |
 
-## 推荐流水线（默认专业路径，已大幅降低手动操作）
+## 推荐使用方式（最推荐）
 
-```
-① 下载        bash scripts/download.sh <URL> <WORKDIR>
-② 截 demo     bash scripts/clip_demo.sh <WORKDIR>/source.mp4 <WORKDIR> 30
-              （自动生成 source_demo_30s.mp4 + contact_sheet.jpg，后续全部基于此）
-③ 切镜抽帧    scripts/split_scenes.py <WORKDIR>/source_demo_30s.mp4 <WORKDIR>/scenes
-④ 出分镜表    我读 frames/ → storyboard.json     [Director]
-⑤ 改编 brief  我写 brief.md + Critic 自检
-⑥ 提交+轮询   bash scripts/xyq_submit.sh ... && bash scripts/xyq_poll.sh <WORKDIR>(后台)
-⑦ 意图确认    若退出码=2 → 运行 scripts/xyq_suggest_resume.sh <WORKDIR>
-              （自动给出 3 个高质量选项 + 完整可执行命令，直接复制即可）
-⑧ 下载+拼接   xyq_download.sh → compose.sh（自动识别 16:9 / 9:16）
-⑨ 质检        我抽帧对照 → qc_report.md             [QC Reviewer]
+### 方式一：使用主入口脚本（强烈推荐新用户使用）
+
+```bash
+./run.sh <视频链接或本地文件路径>
 ```
 
-**长视频铁律**：超过 35 秒必须先走第②步截 30s demo，否则不推荐直接提交生成。
+这个脚本会自动：
+- 创建规范的工作目录
+- 下载视频
+- 智能判断是否需要截 30s demo（并询问你）
+- 完成后给你清晰的下一步指引
+
+之后任何时候想知道想干什么，运行：
+```bash
+bash scripts/next.sh <工作目录>
+```
+
+### 方式二：手动分步执行（进阶用户）
+
+```
+① 下载 + 智能 demo 处理   ./run.sh <链接>   （或手动调用 download + clip_demo）
+② 切镜抽帧                 scripts/split_scenes.py ...
+③ 写分镜 + brief           [Director + Critic]
+④ 提交小云雀               scripts/xyq_submit.sh ...
+⑤ 轮询 + 意图确认处理      scripts/xyq_poll.sh + scripts/xyq_suggest_resume.sh
+⑥ 下载产物 + 拼接           scripts/xyq_download.sh + scripts/compose.sh
+⑦ 质检                     [QC Reviewer]
+```
+
+**长视频铁律**：超过 35 秒强烈建议先走 demo 路径。
 
 第 ⑥ 段 `xyq_poll.sh` 用 `run_in_background=true` 启动,框架完成时通知,无需主动轮询。
 
