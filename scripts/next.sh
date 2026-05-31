@@ -12,10 +12,10 @@ if [[ ! -d "$WORKDIR" ]]; then
     exit 1
 fi
 
-echo "════════════════════════════════════════"
+echo "════════════════════════════════════"
 echo "  video-replicate 流程状态检查"
 echo "  目录: $WORKDIR"
-echo "════════════════════════════════════════"
+echo "════════════════════════════════════"
 echo
 
 has_source=false
@@ -53,7 +53,7 @@ if $has_clips; then
     echo
     echo "下一步推荐："
     echo "  bash scripts/compose.sh $WORKDIR"
-    echo "(会自动识别横屏/竖屏并生成 final.mp4)"
+    echo "(会自动识别横屏/垂屏并生成 final.mp4)"
     exit 0
 fi
 
@@ -71,14 +71,26 @@ fi
 if $has_brief; then
     echo "✅ brief.md 已准备好"
     echo
-    echo "下一步推荐："
+    echo "两条路径选择（不会影响已有方式）："
+    echo
+    echo "路径一（原有方式，适合有小云雀额度的用户）："
     echo "  bash scripts/xyq_submit.sh \\"
     echo "      $WORKDIR/source_demo_30s.mp4 \\"
     echo "      $WORKDIR/brief.md \\"
     echo "      $WORKDIR"
     echo
-    echo "提交后立即运行："
+    echo "  提交后立即运行："
     echo "  bash scripts/xyq_poll.sh $WORKDIR   (后台)"
+    echo
+    echo "路径二（新增：结构复刻 Prompt Factory，完全不用小云雀）："
+    echo "  你的高质量复刻生产资料已完整："
+    echo "    - $WORKDIR/contact_sheet.jpg     (关键帧一览)"
+    echo "    - $WORKDIR/scenes/               (切镜 + 每镜帧)"
+    echo "    - $WORKDIR/storyboard.json       (分镜表)"
+    echo "    - $WORKDIR/brief.md              (已用实战硬化模板优化)"
+    echo
+    echo "  直接拿走这些文件，用于 Kling / 即梦 / 海蟹 / 本地工具等任何视频/图像生成工具。"
+    echo "  需要后期拼接时可用： bash scripts/compose.sh $WORKDIR"
     exit 0
 fi
 
