@@ -63,17 +63,8 @@ fi
 
 [[ -f "$OUT" ]] || { echo "[download] ❌ 未产出 source.mp4"; exit 3; }
 
-# --- 元数据 ---
-ffprobe -v error -print_format json -show_format -show_streams "$OUT" > "$WORKDIR/source_info.json"
-INFO="$WORKDIR/source_info.json" OUTFILE="$OUT" python3 - <<'PY'
-import json, os, pathlib
-d = json.loads(pathlib.Path(os.environ["INFO"]).read_text())
-fmt = d["format"]
-v = next(s for s in d["streams"] if s["codec_type"]=="video")
-num, den = v["r_frame_rate"].split("/")
-fps = round(float(num)/float(den), 2) if float(den) else 0
-ratio_h = v["height"] / max(1, v["width"])
-orient = "竖屏 9:16" if ratio_h > 1 else "横屏 16:9" if ratio_h < 0.9 else "方屏"
-print(f"[download] ✅ {os.environ['OUTFILE']}")
-print(f"           {float(fmt['duration']):.2f}s | {v['width']}x{v['height']} {orient} | {fps}fps | {int(fmt['size'])/1024/1024:.2f}MB")
-PY
+echo
+echo "[download] ✅ 下载完成"
+echo "下一步推荐（长视频强烈建议先做）："
+echo "  bash scripts/clip_demo.sh \"$OUT\" \"$WORKDIR\" 30"
+echo "这会自动截取前 30 秒并生成 contact_sheet.jpg 便于 review"

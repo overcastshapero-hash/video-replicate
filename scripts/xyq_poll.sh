@@ -16,7 +16,11 @@ LOG="$WORKDIR/xyq_status.log"
 FINAL="$WORKDIR/xyq_final.json"
 
 [[ -f "$RUN_JSON" ]] || { echo "[poll] ❌ 没找到 xyq_run.json,先跑 xyq_submit.sh"; exit 2; }
-[[ -n "${XYQ_ACCESS_KEY:-}" ]] || { echo "[poll] ❌ XYQ_ACCESS_KEY 未设置"; exit 4; }
+[[ -n "${XYQ_ACCESS_KEY:-}" ]] || {
+  echo "[poll] ❌ 未检测到 XYQ_ACCESS_KEY"
+  echo "请先配置 Key 后再运行（推荐使用 .env 文件）"
+  exit 4
+}
 
 SKILL_XYQ="$HOME/.claude/skills/xyq-nest-skill/scripts"
 TID=$(python3 -c "import json; print(json.load(open('$RUN_JSON'))['thread_id'])")

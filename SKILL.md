@@ -63,17 +63,26 @@ description: 把一个抖音/B站/YouTube 链接(或本地视频文件)复刻成
 
 意图确认(退出码 2)是**正常流程**:小云雀典型节奏是 第 1 run 出故事板→等确认→ resume → 第 2 run 真出片。最多 3 轮 resume。
 
-## 长视频规则(>30 秒)
+## 长视频规则(>30 秒) —— 强烈推荐走 demo 路径
 
-现在支持一键截 demo：
-1. 下载后直接运行 `bash scripts/clip_demo.sh <WORKDIR>/source.mp4 <WORKDIR> 30`
-2. 自动产出 `source_demo_30s.mp4` + `contact_sheet.jpg`（关键帧拼图，便于 review）
-3. 后续全流程基于 demo 进行，成本可控
-4. 用户坚持整片时，明确告知 credits 消耗风险（小云雀按生成次数扣）
+**默认流程（推荐）：**
+1. 下载完成后，**必须先执行**：
+   ```bash
+   bash scripts/clip_demo.sh <WORKDIR>/source.mp4 <WORKDIR> 30
+   ```
+   这会自动生成 `source_demo_30s.mp4` + `contact_sheet.jpg`（关键帧拼图，便于快速 review 结构）。
+
+2. 后续所有切镜、brief、生成全部基于这个 30s demo 进行，成本可控且迭代快。
+
+3. 只有在 demo 验证通过后，才考虑整片生成。
+
+**如果用户坚持整片**：
+- 必须提前明确告知 credits 消耗风险（小云雀按生成次数扣，一条 60s+ 视频经常要消耗大量额度）。
+- 建议先用 clip_demo.sh 截取一个代表性片段验证效果。
 
 ## 最终交付
 
-报告含:`final.mp4` 路径 / 原片对照(时长/镜头数/画幅) / `qc_report.md` / 小云雀 web_thread_link / contact_sheet.jpg。
+报告含:`final.mp4` 路径 / 原片对照(时长/镜头数/画幅) / `qc_report.md` / 小云雀 web_thread_link。
 
 ## 详细参考(按需读)
 
