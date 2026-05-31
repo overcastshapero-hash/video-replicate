@@ -5,6 +5,11 @@
 # 产出: <WORKDIR>/xyq_status.log, <WORKDIR>/xyq_final.json (最终响应)
 
 set -uo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="$SCRIPT_DIR/../.env"
+if [[ -f "$ENV_FILE" && -z "${XYQ_ACCESS_KEY:-}" ]]; then
+  set -a; source "$ENV_FILE"; set +a
+fi
 WORKDIR="${1:?usage: xyq_poll.sh <WORKDIR>}"
 RUN_JSON="$WORKDIR/xyq_run.json"
 LOG="$WORKDIR/xyq_status.log"

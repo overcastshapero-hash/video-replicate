@@ -4,6 +4,11 @@
 # 依赖: <WORKDIR>/xyq_urls.txt (由 xyq_poll.sh 产出)
 
 set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="$SCRIPT_DIR/../.env"
+if [[ -f "$ENV_FILE" && -z "${XYQ_ACCESS_KEY:-}" ]]; then
+  set -a; source "$ENV_FILE"; set +a
+fi
 WORKDIR="${1:?usage: xyq_download.sh <WORKDIR>}"
 URLS_FILE="$WORKDIR/xyq_urls.txt"
 OUT_DIR="$WORKDIR/clips"

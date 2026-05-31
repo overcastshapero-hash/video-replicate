@@ -30,7 +30,11 @@ elif [[ "$SRC" =~ douyin\.com|iesdouyin ]]; then
   TMP="$WORKDIR/_f2_dl"
   rm -rf "$TMP" && mkdir -p "$TMP"
   # 第一次跑:从 Chrome 自动取 cookie 并写入配置(yes 自动应答交互)
+  set +e
   yes | f2 dy -c "$CFG" --auto-cookie chrome -M one -u "$SRC" -p "$TMP" -f no 2>&1 | tail -5
+  f2_status=${PIPESTATUS[1]}
+  set -e
+  [[ "$f2_status" -eq 0 ]] || exit "$f2_status"
   # 再跑一次用刚保存的 cookie 真下载(第一次只是写配置)
   if [[ ! "$(find "$TMP" -name '*.mp4' -type f | head -1)" ]]; then
     f2 dy -c "$CFG" -M one -u "$SRC" -p "$TMP" -f no 2>&1 | tail -8

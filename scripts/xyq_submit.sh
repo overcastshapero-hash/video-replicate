@@ -4,6 +4,11 @@
 # 产出: <WORKDIR>/xyq_run.json (含 thread_id / run_id / web_thread_link / asset_id)
 
 set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="$SCRIPT_DIR/../.env"
+if [[ -f "$ENV_FILE" && -z "${XYQ_ACCESS_KEY:-}" ]]; then
+  set -a; source "$ENV_FILE"; set +a
+fi
 SRC="${1:?usage: xyq_submit.sh <SOURCE_VIDEO> <BRIEF_MD> <WORKDIR>}"
 BRIEF="${2:?usage: xyq_submit.sh <SOURCE_VIDEO> <BRIEF_MD> <WORKDIR>}"
 WORKDIR="${3:?usage: xyq_submit.sh <SOURCE_VIDEO> <BRIEF_MD> <WORKDIR>}"
@@ -14,7 +19,7 @@ WORKDIR="${3:?usage: xyq_submit.sh <SOURCE_VIDEO> <BRIEF_MD> <WORKDIR>}"
   exit 4
 }
 
-SKILL_XYQ=$(dirname "$0")/../../xyq-nest-skill/scripts
+SKILL_XYQ="$SCRIPT_DIR/../../xyq-nest-skill/scripts"
 [[ -d "$SKILL_XYQ" ]] || SKILL_XYQ="$HOME/.claude/skills/xyq-nest-skill/scripts"
 [[ -f "$SKILL_XYQ/submit_run.py" ]] || {
   echo "[xyq] ❌ xyq-nest-skill 未安装。需要它在 ~/.claude/skills/xyq-nest-skill/"

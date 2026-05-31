@@ -4,6 +4,11 @@
 # 产出: 更新 <WORKDIR>/xyq_run.json 用新 run_id 覆盖,然后可以再跑 xyq_poll.sh
 
 set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="$SCRIPT_DIR/../.env"
+if [[ -f "$ENV_FILE" && -z "${XYQ_ACCESS_KEY:-}" ]]; then
+  set -a; source "$ENV_FILE"; set +a
+fi
 WORKDIR="${1:?usage: xyq_resume.sh <WORKDIR> <MESSAGE>}"
 MSG="${2:?usage: xyq_resume.sh <WORKDIR> <MESSAGE>}"
 RUN_JSON="$WORKDIR/xyq_run.json"
