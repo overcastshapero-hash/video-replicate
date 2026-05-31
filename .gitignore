@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# 实战产生的临时文件(skill 自己跑出来的)
+/runs/
+/_tmp/
