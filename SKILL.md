@@ -107,6 +107,7 @@ bash scripts/next.sh <工作目录>
 - `references/brief-template.md` — 给小云雀的中文指令模板（基础版）
 - `references/xiaoyunque-structure-replication-best-brief-template.md` — 风筝项目实战硬化版（具体+禁止项+视觉锚点，防颜色/特征漂移等执行偏差）
 - `references/xiaoyunque-structure-prompt-modules.md` — 可乐高组合的 prompt 模块包（任务声明、结构锁定、反美化节奏等）
+- `references/prompt-factory.md` — **路径二完整操作指南**（结构复刻 Prompt Factory，无需小云雀也能用，推荐阅读）
 - `references/video-replication-craft.md` — 完整结构复刻工艺决策框架 + 常见失败模式对策 + 真实案例
 - `references/storyboard-schema.md` — JSON 结构
 - `references/join-strategy.md` — 衔接策略、长视频
