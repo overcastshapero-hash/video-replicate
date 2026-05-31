@@ -13,9 +13,21 @@ WORKDIR="${1:?usage: xyq_download.sh <WORKDIR>}"
 URLS_FILE="$WORKDIR/xyq_urls.txt"
 OUT_DIR="$WORKDIR/clips"
 
-[[ -f "$URLS_FILE" ]] || { echo "[dl] ❌ 没找到 xyq_urls.txt,等轮询完成"; exit 2; }
-[[ -s "$URLS_FILE" ]] || { echo "[dl] ❌ xyq_urls.txt 为空"; exit 3; }
-[[ -n "${XYQ_ACCESS_KEY:-}" ]] || { echo "[dl] ❌ XYQ_ACCESS_KEY 未设置"; exit 4; }
+[[ -f "$URLS_FILE" ]] || {
+    echo "[dl] ❌ 没找到 xyq_urls.txt"
+    echo "请先确保 xyq_poll.sh 已成功完成（退出码 0）"
+    exit 2
+}
+[[ -s "$URLS_FILE" ]] || {
+    echo "[dl] ❌ xyq_urls.txt 为空"
+    echo "小云雀可能没有生成有效产物，请检查 xyq_status.log 和 xyq_final.json"
+    exit 3
+}
+[[ -n "${XYQ_ACCESS_KEY:-}" ]] || {
+    echo "[dl] ❌ XYQ_ACCESS_KEY 未检测到"
+    echo "请配置 Key 后再运行下载"
+    exit 4
+}
 
 mkdir -p "$OUT_DIR"
 SKILL_XYQ="$HOME/.claude/skills/xyq-nest-skill/scripts"

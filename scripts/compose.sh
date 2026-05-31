@@ -24,7 +24,11 @@ mkdir -p "$TMP"
 
 shopt -s nullglob
 CLIPS=( "$CLIPS_DIR"/shot_*.mp4 )
-[[ ${#CLIPS[@]} -gt 0 ]] || { echo "[compose] ❌ 找不到 clips/shot_*.mp4"; exit 2; }
+[[ ${#CLIPS[@]} -gt 0 ]] || {
+    echo "[compose] ❌ 找不到 clips/shot_*.mp4"
+    echo "请先确保 xyq_download.sh 已成功下载生成片段"
+    exit 2
+}
 
 # 自动识别画幅（优先 demo_info，其次 source_info）
 if [[ -z "$ASPECT" ]]; then
