@@ -68,7 +68,7 @@ video-replicate/
 ├── .env.example             # 环境变量模板(不含真 key)
 ├── scripts/                 # 工具脚本（含 next.sh / check.sh 等）
 ├── agents/                  # 3 个虚拟角色 prompt
-└── references/              # 6 份详细参考(按需读)
+└── references/              # 12 份详细参考(按需读)
 ```
 
 ## 核心理念
