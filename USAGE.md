@@ -15,26 +15,26 @@
 ```
 你扔一个链接
    ↓
-① 自动下载原视频(抖音、B站、YouTube、本地文件都行)
+① 自动下载原视频
    ↓
-② PySceneDetect 自动切镜,每个镜头抽 3 张关键帧
+② 一键截前30秒 demo + 自动生成 contact sheet（关键帧拼图）
    ↓
-③ Claude 看每张关键帧,写出完整分镜表
+③ PySceneDetect 自动切镜 + 每镜3帧
    ↓
-④ 询问你的改编方向(主体换成啥、画幅、字幕)→ 翻译成精确指令
+④ Claude + Director/Critic 写 brief（带 IP 避坑）
    ↓
-⑤ 调用「小云雀」AI 视频 agent 端到端生成(字节家的)
+⑤ 提交小云雀 → 自动轮询
    ↓
-⑥ 自动下载产物
+⑥ 遇到意图确认时，运行 xyq_suggest_resume.sh 直接给出高质量回复建议
    ↓
-⑦ ffmpeg 统一规格拼接成片(9:16 或 16:9)
+⑦ 自动下载 + compose.sh（自动识别横屏/竖屏，无需手写脚本）
    ↓
-⑧ 自动质检:IP 残留 / 水印 / 主体一致性
+⑧ QC Reviewer 抽帧验收
    ↓
-final.mp4 + qc_report.md 给你
+final.mp4 + qc_report.md + contact_sheet.jpg 给你
 ```
 
-**整条管道你只动嘴。**
+**整条管道你只动嘴 + 少量确认。**
 
 ## 你需要准备什么(一次性,5 分钟)
 
@@ -81,6 +81,8 @@ YouTube / B 站 / 本地文件不需要这步。
 | 文件 | 内容 |
 |---|---|
 | `source.mp4` | 自动下载的原片 |
+| `source_demo_30s.mp4` | 自动截取的 30 秒 demo（默认） |
+| `contact_sheet.jpg` | 关键帧拼图，一眼看清镜头结构 |
 | `scenes/scenes.json` | 自动切出来的分镜列表 |
 | `scenes/frames/SXX_*.jpg` | 每镜的头/中/尾关键帧 |
 | `storyboard.json` | Claude 看完帧写出的分镜表(给你看,也给小云雀参考) |
@@ -105,12 +107,14 @@ YouTube / B 站 / 本地文件不需要这步。
 
 ```
 你: 复刻这个视频:https://v.douyin.com/xxxxxxx/
-Claude: 已下载,2 分 14 秒 / 46 镜 / 16:9。建议截前 30 秒做 demo。
-你: 行,主题别变,画幅也别变,无字幕
+Claude: 已下载,2 分 14 秒 / 46 镜 / 16:9。自动截前 30 秒 + contact sheet 已生成。
+你: 主题别变,画幅也别变,无字幕
 Claude: brief 已写,Critic 自检通过,提交小云雀...
-[10-30 分钟后]
+[10-30 分钟后，可能有 1 次意图确认]
+Claude: 用 suggest_resume 拿到推荐消息 → 已 resume
+[出片]
 Claude: ✅ 成片在 ~/projects/video-replicate/.../final.mp4
-        QC 全过,IP 残留 0,水印 0,转场连续。
+        QC 全过 + contact sheet 可快速验收
 ```
 
 ### 场景 B — YouTube 风格借鉴
@@ -118,32 +122,20 @@ Claude: ✅ 成片在 ~/projects/video-replicate/.../final.mp4
 ```
 你: 按这个 YouTube 视频做一个,主体换成熊猫,9:16 竖屏:
     https://youtube.com/watch?v=xxx
-Claude: 已下载,15 镜 / 22 秒。
+Claude: 已下载,15 镜 / 22 秒。自动截 demo + contact sheet。
         改编方向:主角→熊猫,画幅切 9:16。
         brief 已写,准备提交。
 你: 走
 [出片]
 ```
 
-### 场景 C — 本地视频复刻
-
-```
-你: 按这个文件做一条同款 → /Users/me/Downloads/参考.mp4
-Claude: 文件读取成功,7 镜 / 18 秒 / 9:16。
-        Director 默认走"原样结构 + 角色形象差异化避 IP"。
-        确认?
-你: 确认
-[出片]
-```
-
 ## 关于"能不能 100% 跑通"
 
-诚实说:**整条流水线已经被实战打通**,卡点只有两个,都不是 skill 的 bug:
+诚实说:**核心痛点已大幅缓解**（30s 裁剪、横竖屏拼接、意图确认回复建议）。
 
-1. **小云雀积分**:商业 API,要钱。账户没额度就出不了片(skill 会立刻告诉你 `error code 11001`,不藏)。
+仍需注意的两个外部依赖:
+1. **小云雀积分**:商业 API，要钱。账户没额度就出不了片(skill 会立刻告诉你 `error code 11001`,不藏)。
 2. **抖音 Cookie**:Chrome 没登过 douyin.com → 下载失败。Skill 会立刻告诉你怎么解,不让你猜。
-
-skill 的健壮性体现在:**4 种退出码各自有明确分支**,意图确认(小云雀要你确认方案)/积分不足/限流/审核失败全部独立处理,不会把所有错误埋成"未知错误"。
 
 ## 不做什么
 
@@ -162,17 +154,6 @@ skill 的健壮性体现在:**4 种退出码各自有明确分支**,意图确认
 - 课程/广告制作:借鉴成熟视频结构,改编成自己的素材
 
 不适合:想完全照搬别人作品的人(skill 会拒绝)。
-
-## 路线图
-
-- [x] 抖音 / B站 / YouTube / 本地下载
-- [x] PySceneDetect 自动切镜
-- [x] 小云雀端到端生成
-- [x] 意图确认 / 积分不足 / 限流 4 种退出码独立处理
-- [ ] 替换视频引擎为 Veo / Runway / 可灵(逐镜调用模式)
-- [ ] 自动生成中英文字幕 + TTS 烧录
-- [ ] BGM 库 + 智能选曲
-- [ ] 一键发布到目标平台
 
 ## License
 

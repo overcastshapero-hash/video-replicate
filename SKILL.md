@@ -21,7 +21,7 @@ description: 把一个抖音/B站/YouTube 链接(或本地视频文件)复刻成
 2. 抖音链接 → 提醒"需要 Chrome 登过 douyin.com 一次"
 3. 工作目录:`~/projects/video-replicate/<run-id>/`,`<run-id>` = `YYYYMMDD-HHMM-<短描述>`
 
-## 何时不要用
+## 当不要用
 
 - 只想下载 → `youtube-downloader`
 - 只想转写文字 → `video-transcript`
@@ -31,31 +31,32 @@ description: 把一个抖音/B站/YouTube 链接(或本地视频文件)复刻成
 
 | 角色 | 在哪段登场 | 详细职责 |
 |---|---|---|
-| Director | ③→④ | `agents/director.md` |
-| Storyboard Critic | ④ 提交前 | `agents/storyboard-critic.md` |
-| QC Reviewer | ⑦→⑧ | `agents/qc-reviewer.md` |
+| Director | ④→⑤ | `agents/director.md` |
+| Storyboard Critic | ⑤ 提交前 | `agents/storyboard-critic.md` |
+| QC Reviewer | ⑧→⑨ | `agents/qc-reviewer.md` |
 
-## 8 段流水线
+## 8 段流水线（已大幅降低手动操作）
 
 ```
 ① 下载        bash scripts/download.sh <URL> <WORKDIR>
-② 切镜抽帧    scripts/split_scenes.py <WORKDIR>/source.mp4 <WORKDIR>/scenes
-③ 出分镜表    我读 frames/ → storyboard.json     [Director]
-④ 改编 brief  我写 brief.md(模板见 references/brief-template.md)  [Director + Critic 自检]
-⑤ 提交+轮询   bash scripts/xyq_submit.sh ... && bash scripts/xyq_poll.sh <WORKDIR>(后台)
-⑥ 下载产物    bash scripts/xyq_download.sh <WORKDIR>
-⑦ 拼接成片    bash scripts/compose.sh <WORKDIR>(若返回单片可跳)
-⑧ 质检        我抽帧对照 → qc_report.md             [QC Reviewer]
+② 截 demo     bash scripts/clip_demo.sh <WORKDIR>/source.mp4 <WORKDIR> 30   （自动生成 contact_sheet.jpg）
+③ 切镜抽帧    scripts/split_scenes.py <WORKDIR>/source_demo_30s.mp4 <WORKDIR>/scenes
+④ 出分镜表    我读 frames/ → storyboard.json     [Director]
+⑤ 改编 brief  我写 brief.md + Critic 自检
+⑥ 提交+轮询   bash scripts/xyq_submit.sh ... && bash scripts/xyq_poll.sh <WORKDIR>(后台)
+⑦ 意图确认处理  若 poll 退出码=2 → 运行 scripts/xyq_suggest_resume.sh <WORKDIR> 获取推荐消息 → xyq_resume.sh
+⑧ 下载+拼接   xyq_download.sh → compose.sh（自动识别横/竖屏）
+⑨ 质检        我抽帧对照 → qc_report.md             [QC Reviewer]
 ```
 
-第 ⑤ 段 `xyq_poll.sh` 用 `run_in_background=true` 启动,框架完成时通知,无需主动轮询。
+第 ⑥ 段 `xyq_poll.sh` 用 `run_in_background=true` 启动,框架完成时通知,无需主动轮询。
 
 ## xyq_poll.sh 4 种退出码(每种必须分别处理)
 
 | 退出码 | 含义 | 下一步 |
 |---|---|---|
 | **0** | 有产物 URL,真完成 | `xyq_download.sh` |
-| **2** | 意图确认中断 — 小云雀给出方案等用户确认 | 读 `xyq_pending_question.txt`,给用户看方案;确认/修改后 `xyq_resume.sh <WORKDIR> "<msg>"` 再起 poll |
+| **2** | 意图确认中断 — 小云雀给出方案等用户确认 | 运行 `bash scripts/xyq_suggest_resume.sh <WORKDIR>` 获取高质量建议消息，确认后 `xyq_resume.sh <WORKDIR> "建议消息"` |
 | **3** | run 结束既无产物又无问题 | 把 `xyq_final.json` 给用户 |
 | **4** | API 业务错误 | 读 `xyq_error.txt` 拿 code,查 `references/xyq-errors.md` 给方案。**11001 = 积分不足,要充值,不是 bug** |
 | **1** | 超时(默认 50 分钟) | 同 3 |
@@ -64,14 +65,15 @@ description: 把一个抖音/B站/YouTube 链接(或本地视频文件)复刻成
 
 ## 长视频规则(>30 秒)
 
-强制路径:
-1. 问用户:整片还是截片段做 demo?
-2. 默认推荐"前 30 秒 demo",成本可控
-3. 用户坚持整片,提交前明确告知"credits 可能要烧几百次生成"
+现在支持一键截 demo：
+1. 下载后直接运行 `bash scripts/clip_demo.sh <WORKDIR>/source.mp4 <WORKDIR> 30`
+2. 自动产出 `source_demo_30s.mp4` + `contact_sheet.jpg`（关键帧拼图，便于 review）
+3. 后续全流程基于 demo 进行，成本可控
+4. 用户坚持整片时，明确告知 credits 消耗风险（小云雀按生成次数扣）
 
 ## 最终交付
 
-报告含:`final.mp4` 路径 / 原片对照(时长/镜头数/画幅) / `qc_report.md` / 小云雀 web_thread_link。
+报告含:`final.mp4` 路径 / 原片对照(时长/镜头数/画幅) / `qc_report.md` / 小云雀 web_thread_link / contact_sheet.jpg。
 
 ## 详细参考(按需读)
 
