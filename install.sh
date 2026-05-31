@@ -26,7 +26,7 @@ if [[ "$(uname)" != "Darwin" ]]; then
 fi
 
 command -v brew >/dev/null 2>&1 || {
-  miss "Homebrew 未安装。先装 brew: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+  miss "Homebrew 未安装。先装 brew: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"" 
   exit 1
 }
 ok "Homebrew 已安装"
@@ -108,4 +108,25 @@ ffmpeg -y -loglevel error \
 rm -rf "$SMOKE"
 
 echo
-ok "安装与检查完成。触发方式:对 Claude Code 说「复刻这个视频:<链接>」"
+ok "安装与检查完成。"
+echo
+echo "════════════════════════════════════════"
+echo "下一步操作建议（2026.5 最新流程）"
+echo "════════════════════════════════════════"
+echo
+echo "1. 配置小云雀 Key（二选一）："
+echo "   - 推荐：cp .env.example .env 然后编辑填入 XYQ_ACCESS_KEY"
+echo "   - 或全局：echo 'export XYQ_ACCESS_KEY=\"ak-xxx\"' >> ~/.zshrc && source ~/.zshrc"
+echo
+echo "2. 在 Claude Code 中触发："
+echo "   复刻这个视频: https://v.douyin.com/xxxxx/"
+echo
+echo "3. 推荐先用 30 秒 demo 验证："
+echo "   系统会自动调用 clip_demo.sh + 生成 contact sheet"
+echo
+echo "4. 遇到小云雀意图确认（最常见卡点）："
+echo "   直接运行：bash scripts/xyq_suggest_resume.sh <你的工作目录>"
+echo "   复制它给出的建议消息，再用 xyq_resume.sh 继续"
+echo
+echo "详细使用说明见仓库 README.md 和 USAGE.md"
+echo "════════════════════════════════════════"
