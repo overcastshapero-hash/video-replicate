@@ -71,14 +71,45 @@ PY
   HEAD=$(echo "$PARSE" | head -1)
   echo "[$TS iter=$i] $HEAD" >> "$LOG"
   URLS=$(echo "$PARSE" | grep "^URL:" | sed 's/^URL://')
+
+  # 情况 A: 检测到产物 URL — 真完成
   if [[ -n "$URLS" ]]; then
     echo "[$TS] ✅ DONE: 检测到产物 URL" >> "$LOG"
     echo "$URLS" > "$WORKDIR/xyq_urls.txt"
     exit 0
   fi
-  if echo "$HEAD" | grep -qi "本次创作完成\|run_succeeded\|completed"; then
-    echo "[$TS] ✅ 状态完成" >> "$LOG"
-    exit 0
+
+  # 情况 B: run 完成但没 URL — 几乎一定是"意图确认中断"
+  # 区分真完成 vs 中断的关键:看 assistant 最后一条 text 消息是否在问问题/要确认
+  if echo "$HEAD" | grep -qi "本次创作已完成\|本次创作完成\|run_succeeded\|completed"; then
+    # 抽出最后一条 assistant text(确认问题或下一步指引)
+    PROMPT_HEAD=$(RAW_TXT="$RAW" python3 <<'PY' 2>/dev/null
+import os, json
+raw = os.environ["RAW_TXT"]
+i = raw.find("{")
+d = json.loads(raw[i:])
+last_text = ""
+for m in d.get("messages", []):
+    if m.get("role") != "assistant": continue
+    c = m.get("content")
+    if not isinstance(c, list): continue
+    for it in c:
+        if it.get("type") == "text":
+            data = it.get("data")
+            if isinstance(data, str): last_text = data
+elif_kw = ("请确认", "是否", "需要先和你确认", "如果符合预期", "请回答", "请告诉我")
+need_confirm = any(k in last_text for k in elif_kw)
+print(f"NEED_CONFIRM={1 if need_confirm else 0}|{last_text[:200]}")
+PY
+)
+    NEED=$(echo "$PROMPT_HEAD" | grep -o "NEED_CONFIRM=[01]" | head -1 | cut -d= -f2)
+    if [[ "$NEED" == "1" ]]; then
+      echo "[$TS] ⏸ 意图确认中断 — assistant 在等用户确认" >> "$LOG"
+      echo "$PROMPT_HEAD" | sed 's/^NEED_CONFIRM=[01]|//' > "$WORKDIR/xyq_pending_question.txt"
+      exit 2   # 退出码 2 = 需人工确认
+    fi
+    echo "[$TS] ✅ run 结束且无确认问题 — 视为完成(无产物 URL 异常)" >> "$LOG"
+    exit 3   # 退出码 3 = run 结束但无产物,异常
   fi
   sleep "$INTERVAL"
 done

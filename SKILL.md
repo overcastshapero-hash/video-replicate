@@ -110,7 +110,23 @@ bash $SKILL_DIR/scripts/xyq_poll.sh <WORKDIR>
 
 用 Claude Code 的 `run_in_background=true` 启动,完成时框架自动通知,不阻塞前台。
 
-轮询完成判定:看到产物 URL 或状态含"完成/completed/finished"。
+**xyq_poll.sh 的三个退出码必须分别处理**(实战吃过的亏:小云雀经常给出"故事板/方案"后中断等用户确认,不是真完成):
+
+| 退出码 | 含义 | 下一步 |
+|---|---|---|
+| **0** | 真完成,有产物 URL | 跑 xyq_download.sh |
+| **2** | 意图确认中断,assistant 在问"请确认" | 读 `xyq_pending_question.txt`,把方案展示给用户;用户确认/修改后,跑 `xyq_resume.sh <WORKDIR> "<确认或修改消息>"`,再启 xyq_poll.sh 等下一轮 |
+| **3** | run 结束但既无产物又无问题 — 异常 | 把 `xyq_final.json` 给用户人工判断 |
+| **1** | 超时(默认 50 分钟) | 同 3 |
+
+意图确认是**正常流程**而不是错误。小云雀的典型节奏:
+1. 第 1 个 run:理解素材 → 生成故事板/参考图 → 等用户确认 (退出码 2)
+2. resume 一句"确认,继续" → 第 2 个 run:逐镜生成 → 拼接 → 产物 URL (退出码 0)
+3. 可能还有第 3 轮:精修。
+
+每出现退出码 2,就停下来把 assistant 的方案给用户看,等他拍板再 resume。
+
+最多 3 轮 resume,仍没产物 → 把 web_thread_link 给用户人工接管。
 
 ### ⑥ 下载产物
 
