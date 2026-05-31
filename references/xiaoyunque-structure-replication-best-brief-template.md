@@ -1,0 +1,1 @@
+The clean template file.
