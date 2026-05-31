@@ -129,4 +129,7 @@ echo "   直接运行：bash scripts/xyq_suggest_resume.sh <你的工作目录>"
 echo "   复制它给出的建议消息，再用 xyq_resume.sh 继续"
 echo
 echo "详细使用说明见仓库 README.md 和 USAGE.md"
+echo "演示/自检推荐命令："
+echo "  bash scripts/check.sh          # 完整环境检查"
+echo "  cat DEMO.md                    # 给老师演示时的推荐流程"
 echo "════════════════════════════════════════"
