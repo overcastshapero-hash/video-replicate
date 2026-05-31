@@ -12,3 +12,8 @@ __pycache__/
 # 实战产生的临时文件(skill 自己跑出来的)
 /runs/
 /_tmp/
+
+# 不能进仓库的:用户的 key 和实际配置
+.env
+.env.local
+*.key

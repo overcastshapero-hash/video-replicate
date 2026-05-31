@@ -13,6 +13,13 @@ warn()  { echo -e "${YELLOW}⚠️${NC} $*"; }
 echo "═══ video-replicate skill 环境检查与安装 ═══"
 echo
 
+# 如果有本地 .env,自动 source(优先级低于 shell 已 export 的)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "$SCRIPT_DIR/.env" ]]; then
+  set -a; source "$SCRIPT_DIR/.env"; set +a
+  ok "读取本地 .env"
+fi
+
 # --- 系统级前置 ---
 if [[ "$(uname)" != "Darwin" ]]; then
   warn "本 skill 在 macOS 上调通过;Linux/Windows 路径需要你自己适配 brew/pipx 部分。"
