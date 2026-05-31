@@ -1,6 +1,13 @@
 # video-replicate
 
-> 扔一个视频链接给 Claude Code,自动复刻成结构一致、主题可换的新视频。
+> 扔一个视频链接给 Claude Code，自动复刻成结构一致、主题可换的新视频。
+
+**核心价值**：不是绑定某个视频模型，而是把「爆款视频的结构、节奏、叙事逻辑」用可执行的工艺固化成高质量 prompt 包 + 分镜资产。现在 clone 这个仓库，你拿到的已经是经过真实项目打磨的「可 clone 高质量内部工具公开版」。
+
+## 两条路径
+
+- **路径一**：走小云雀完整一键出片（适合有额度时）
+- **路径二**（推荐主力）：跑完分析和 prompt 后，用产出的 `contact_sheet.jpg` + `scenes/` + `storyboard.json` + `brief.md`（按 craft 框架 + 高级模板硬化）去任意视频/图像工具继续生成。**完全不依赖小云雀**。
 
 ## 30 秒入门（推荐）
 
@@ -10,73 +17,40 @@ cd ~/.claude/skills/video-replicate
 ./install.sh
 ```
 
-配好小云雀 key 后，直接运行：
+配好小云雀 key 后（可选），直接运行：
 
 ```bash
 ./run.sh "https://v.douyin.com/xxxxx/"
 ```
 
-这个脚本会自动帮你完成下载 + 智能截 30s demo，并告诉你后续每一步该干什么。
+这个脚本会自动帮你完成下载 + 智能截 30s demo，并告诉你后续每一步该干什么（包括路径二怎么停在高质量 prompt 包阶段）。
 
 任何时候想知道现在该做什么：
 ```bash
 bash scripts/next.sh <工作目录>
 ```
 
+## 完整介绍
+
+**📄 看 [`USAGE.md`](USAGE.md) — 这是发给别人的那份文档。**
+里面有:
+- 两条路径的详细说明（重点推荐路径二：结构复刻 Prompt Factory）
+- 你需要准备什么
+- 你能拿到什么（尤其是路径二的核心资产）
+- 真实使用场景
+- 已知边界
+
+最近一次重大升级：把《视频结构复刻工艺决策框架》 + 多套经过风筝等项目实战硬化的高级 brief 模板完整放进公开仓库，知识完整度大幅提升。
+
 ## 配置(一次性)
 
 ### 1. 装小云雀 skill
 
-`xyq-nest-skill` 是字节家官方提供的 skill,需要单独装在 `~/.claude/skills/xyq-nest-skill/`。
-本 skill 启动时会检查,缺了会告诉你怎么补。
+`xyq-nest-skill` 是字节家官方提供的 skill，需要单独装在 `~/.claude/skills/xyq-nest-skill/`（只路径一需要）。
 
 ### 2. 拿小云雀 Access Key
 
-打开 https://xyq.jianying.com → 登录 → 用户中心 → Access Key。
-
-**两种配置方法,任选一种:**
-
-**A. 写进 shell(全局生效)**
-```bash
-echo 'export XYQ_ACCESS_KEY="ak-xxx"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-**B. 写进本目录的 .env(只对本 skill 生效)**
-```bash
-cp .env.example .env
-# 编辑 .env 填入你的 key
-```
-
-`.env` 已经在 `.gitignore` 里,不会被提交。
-
-### 3. 抖音视频要 Chrome 登过(可选)
-
-复刻抖音视频前,用 Chrome 打开 `https://www.douyin.com` 扫码登录一次,关掉窗口(Chrome 进程别退)。
-
-YouTube / B 站 / 本地文件不需要这步。
-
-## 目录速览
-
-```
-video-replicate/
-├── run.sh                   # 主入口脚本（最推荐）
-├── SKILL.md                 # 主流程(给 Claude 看)
-├── README.md                # 你正在看的
-├── USAGE.md                 # 发给别人看的完整介绍
-├── install.sh               # 一键装环境
-├── .env.example             # 环境变量模板(不含真 key)
-├── scripts/                 # 工具脚本（含 next.sh / check.sh 等）
-├── agents/                  # 3 个虚拟角色 prompt
-└── references/              # 12 份详细参考(按需读)
-```
-
-## 核心理念
-
-- **结构复刻 + 主题改编**,不是一比一克隆
-- **协作角色透明**(只有 3 个真有用的,Director/Critic/QC)
-- **错误码独立处理**(意图确认/积分不足/限流/审核分开)
-- **法律红线硬规则**(拒绝盗版克隆)
+只路径一需要。
 
 ## License
 
