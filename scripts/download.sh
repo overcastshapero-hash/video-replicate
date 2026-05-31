@@ -17,9 +17,13 @@ if [[ -f "$SRC" ]]; then
 elif [[ "$SRC" =~ douyin\.com|iesdouyin ]]; then
   echo "[download] 抖音链接,用 f2 + Chrome auto-cookie"
   command -v f2 >/dev/null || {
-    echo "[download] ❌ f2 未安装。运行 \$SKILL_DIR/install.sh 或手动:"
-    echo "         brew install python@3.12 pipx"
-    echo "         pipx install --python /opt/homebrew/opt/python@3.12/bin/python3.12 f2"
+    echo "[download] ❌ f2 未安装（抖音下载必需）"
+    echo
+    echo "解决方法："
+    echo "  运行项目根目录下的 install.sh（推荐）"
+    echo "  或手动安装："
+    echo "    brew install python@3.12 pipx"
+    echo "    pipx install --python /opt/homebrew/opt/python@3.12/bin/python3.12 f2"
     exit 4
   }
   CFG="$HOME/.config/f2/douyin.yaml"
@@ -65,6 +69,23 @@ fi
 
 echo
 echo "[download] ✅ 下载完成"
-echo "下一步推荐（长视频强烈建议先做）："
-echo "  bash scripts/clip_demo.sh \"$OUT\" \"$WORKDIR\" 30"
-echo "这会自动截取前 30 秒并生成 contact_sheet.jpg 便于 review"
+echo
+if [[ -f "$WORKDIR/source_info.json" ]]; then
+  # 简单判断时长，超过35秒就强烈推荐截demo
+  DURATION=$(python3 -c "
+import json,sys
+d=json.load(open(sys.argv[1]))
+print(float(d['format']['duration']))
+" "$WORKDIR/source_info.json" 2>/dev/null || echo "0")
+  if (( $(echo "$DURATION > 35" | bc -l 2>/dev/null || echo 0) )); then
+    echo "[download] ⚠️  检测到视频较长（${DURATION}s），强烈建议先截 demo："
+    echo "  bash scripts/clip_demo.sh \"$OUT\" \"$WORKDIR\" 30"
+    echo "（会自动生成 source_demo_30s.mp4 + contact_sheet.jpg，后续全流程基于 demo 进行）"
+  else
+    echo "[download] 下一步："
+    echo "  bash scripts/clip_demo.sh \"$OUT\" \"$WORKDIR\" 30   # 推荐先截 demo"
+  fi
+else
+  echo "[download] 下一步推荐："
+  echo "  bash scripts/clip_demo.sh \"$OUT\" \"$WORKDIR\" 30"
+fi

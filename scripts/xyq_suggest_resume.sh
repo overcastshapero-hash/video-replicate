@@ -20,63 +20,72 @@ echo "=== 小云雀当前问题 ==="
 echo "$PENDING_CONTENT"
 echo
 
-# 使用 Python 智能分析并生成更高质量的建议
+# 智能生成建议
 python3 - <<'PY' "$PENDING_CONTENT" "$BRIEF_CONTENT" "$WORKDIR"
-import sys, re
+import sys
 
-pending = sys.argv[1].lower()
+pending = sys.argv[1]
 brief = sys.argv[2]
 workdir = sys.argv[3]
 
-# 分析 pending 内容，判断小云雀在纠结什么
-issues = []
-if any(k in pending for k in ["主体", "人物", "角色", "服装", "颜色", "偏差", "不同"]):
-    issues.append("subject")
-if any(k in pending for k in ["风格", "氛围", "调色", "电影感", "质感"]):
-    issues.append("style")
-if any(k in pending for k in ["节奏", "结构", "镜头", "顺序", "叙事"]):
-    issues.append("structure")
-if any(k in pending for k in ["时长", "长度", "30秒", "秒"]):
-    issues.append("duration")
+pending_lower = pending.lower()
 
-# 基础强消息模板
-base_confirm = """继续按照当前 brief 和故事板生成最终视频。
+# 智能分析 pending 问题类型
+problem_type = "general"
+specific_advice = ""
+
+if any(kw in pending_lower for kw in ["主体", "人物", "角色", "服装", "颜色", "偏差", "不同", "不像", "不一致"]):
+    problem_type = "subject"
+    specific_advice = "请特别注意 brief 中对主体差异化的具体描述（服装、颜色、轮廓等），严格按照 brief 执行，避免与原片人物形象重合。"
+elif any(kw in pending_lower for kw in ["风格", "氛围", "调色", "质感", "电影感", "光影"]):
+    problem_type = "style"
+    specific_advice = "请严格保持 brief 中要求的视觉氛围和调色风格，与参考素材一致。"
+elif any(kw in pending_lower for kw in ["节奏", "结构", "镜头顺序", "叙事"]):
+    problem_type = "structure"
+    specific_advice = "请严格遵循故事板中的镜头节奏和叙事顺序，不要改变原片结构。"
+else:
+    specific_advice = "请严格按照当前 brief 和故事板继续生成。"
+
+# 三个高质量选项
+option1 = f"""继续按照当前 brief 和故事板生成最终视频。
 
 已明确确认：
 - 严格保持原片镜头节奏、构图逻辑、叙事结构和视觉氛围
-- 主体形象已按 brief 要求进行具体差异化处理（服装、颜色、轮廓等细节均已调整，避免与原 IP 冲突）
+- 主体形象已按 brief 要求进行具体差异化处理（避免与原片 IP 冲突）
 - 画幅、总时长、字幕与配音策略完全遵循 brief 要求
+
+{specific_advice}
 
 请直接基于已提供的故事板和参考素材，生成完整成片。"""
 
-style_focus = """继续生成。请重点确保：
-- 严格遵循 brief 中描述的镜头节奏和叙事顺序
-- 主体差异化已按要求完成（请参考 brief 中的具体描述）
-- 整体视觉风格（调色、氛围、质感）与 brief 保持一致
+option2 = f"""请继续生成。重点确保以下几点：
+- 严格遵循 brief 中对镜头节奏、构图和叙事结构的描述
+- 主体差异化已按 brief 具体要求完成（{specific_advice}）
+- 整体视觉风格与参考素材和 brief 保持高度一致
 
 直接出最终 30 秒成片即可。"""
 
-direct_push = """按当前方向直接生成最终视频。
-brief 中的所有要求（包括主体差异化细节、镜头结构、氛围）均已确认。
-请基于现有故事板和素材直接出片。"""
-
-# 输出选项
-print("=== 推荐 resume 消息（按推荐程度排序） ===\n")
+option3 = """按当前 brief 直接生成最终视频。
+所有关键要求（镜头结构、主体差异化、氛围）均已确认。
+请基于现有素材和故事板直接出片，不要再做额外调整。"""
 
 options = [
-    ("推荐（平衡、专业）", base_confirm),
-    ("更强调风格一致性", style_focus),
-    ("最直接推进（适合明确情况）", direct_push),
+    ("推荐（最平衡，成功率高）", option1),
+    ("更强调关键约束", option2),
+    ("最直接推进（适合问题已明确）", option3),
 ]
 
+print("=== 推荐 resume 消息 ===\n")
 for i, (label, msg) in enumerate(options, 1):
     print(f"【选项 {i} - {label}】")
     print(msg)
     print()
-    print(f"完整命令：")
+    print("完整可执行命令：")
     print(f'bash xyq_resume.sh "{workdir}" "{msg}"')
-    print("\n" + "-"*50 + "\n")
+    print("\n" + "="*60 + "\n")
 
-print("建议：一般情况下直接用【选项 1】即可，质量和推进速度都较好。")
-print("如果小云雀反复纠结某个细节，可以用更具体的选项 2 或 3。")
+print("使用建议：")
+print("- 大多数情况下直接用【选项 1】即可。")
+print("- 如果小云雀反复纠结某个具体问题（如主体偏差），可以尝试【选项 2】。")
+print("- 如果问题已经很明确，只是需要确认，可以用【选项 3】快速推进。")
 PY

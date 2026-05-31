@@ -35,19 +35,23 @@ description: 把一个抖音/B站/YouTube 链接(或本地视频文件)复刻成
 | Storyboard Critic | ⑤ 提交前 | `agents/storyboard-critic.md` |
 | QC Reviewer | ⑧→⑨ | `agents/qc-reviewer.md` |
 
-## 8 段流水线（已大幅降低手动操作）
+## 推荐流水线（默认专业路径，已大幅降低手动操作）
 
 ```
 ① 下载        bash scripts/download.sh <URL> <WORKDIR>
-② 截 demo     bash scripts/clip_demo.sh <WORKDIR>/source.mp4 <WORKDIR> 30   （自动生成 contact_sheet.jpg）
+② 截 demo     bash scripts/clip_demo.sh <WORKDIR>/source.mp4 <WORKDIR> 30
+              （自动生成 source_demo_30s.mp4 + contact_sheet.jpg，后续全部基于此）
 ③ 切镜抽帧    scripts/split_scenes.py <WORKDIR>/source_demo_30s.mp4 <WORKDIR>/scenes
 ④ 出分镜表    我读 frames/ → storyboard.json     [Director]
 ⑤ 改编 brief  我写 brief.md + Critic 自检
 ⑥ 提交+轮询   bash scripts/xyq_submit.sh ... && bash scripts/xyq_poll.sh <WORKDIR>(后台)
-⑦ 意图确认处理  若 poll 退出码=2 → 运行 scripts/xyq_suggest_resume.sh <WORKDIR>（会给出多个高质量选项 + 完整命令，直接复制执行即可）
-⑧ 下载+拼接   xyq_download.sh → compose.sh（自动识别横/竖屏）
+⑦ 意图确认    若退出码=2 → 运行 scripts/xyq_suggest_resume.sh <WORKDIR>
+              （自动给出 3 个高质量选项 + 完整可执行命令，直接复制即可）
+⑧ 下载+拼接   xyq_download.sh → compose.sh（自动识别 16:9 / 9:16）
 ⑨ 质检        我抽帧对照 → qc_report.md             [QC Reviewer]
 ```
+
+**长视频铁律**：超过 35 秒必须先走第②步截 30s demo，否则不推荐直接提交生成。
 
 第 ⑥ 段 `xyq_poll.sh` 用 `run_in_background=true` 启动,框架完成时通知,无需主动轮询。
 
