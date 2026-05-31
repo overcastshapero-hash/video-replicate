@@ -47,12 +47,14 @@ description: 把一个抖音/B站/YouTube 链接(或本地视频文件)复刻成
 - 创建规范的工作目录
 - 下载视频
 - 智能判断是否需要截 30s demo（并询问你）
-- 完成后给你清晰的下一步指引
+- 完成后给你清晰的下一步指引（支持两种路径：完整小云雀出片，或停止在高质量 prompt 包阶段用于其他工具）
 
 之后任何时候想知道想干什么，运行：
 ```bash
 bash scripts/next.sh <工作目录>
 ```
+
+**注意**：当 brief 准备好后，`next.sh` 会同时展示原有小云雀提交路径和新路径（使用产出的 contact_sheet + scenes + storyboard + brief 去任意视频工具）。原有小云雀流程完全保留。
 
 ### 方式二：手动分步执行（进阶用户）
 
@@ -60,7 +62,7 @@ bash scripts/next.sh <工作目录>
 ① 下载 + 智能 demo 处理   ./run.sh <链接>   （或手动调用 download + clip_demo）
 ② 切镜抽帧                 scripts/split_scenes.py ...
 ③ 写分镜 + brief           [Director + Critic]
-④ 提交小云雀               scripts/xyq_submit.sh ...
+④ 提交小云雀               scripts/xyq_submit.sh ...     （或停止于此，走 Prompt Factory 路径）
 ⑤ 轮询 + 意图确认处理      scripts/xyq_poll.sh + scripts/xyq_suggest_resume.sh
 ⑥ 下载产物 + 拼接           scripts/xyq_download.sh + scripts/compose.sh
 ⑦ 质检                     [QC Reviewer]
@@ -68,7 +70,7 @@ bash scripts/next.sh <工作目录>
 
 **长视频铁律**：超过 35 秒强烈建议先走 demo 路径。
 
-第 ⑥ 段 `xyq_poll.sh` 用 `run_in_background=true` 启动,框架完成时通知,无需主动轮询。
+第 ⑤ 段 `xyq_poll.sh` 用 `run_in_background=true` 启动,框架完成时通知,无需主动轮询。
 
 ## xyq_poll.sh 4 种退出码(每种必须分别处理)
 
