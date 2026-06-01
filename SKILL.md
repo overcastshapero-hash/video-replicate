@@ -40,13 +40,17 @@ description: 把一个抖音/B站/YouTube 链接(或本地视频文件)复刻成
 - 只想转写文字 → `video-transcript`
 - 没有参考视频 → 直接用 `xyq-nest-skill`,跳过本 skill
 
-## 协作角色(virtual,同一个 Claude 切换)
+## 协作角色(virtual,同一个 Claude 切换 — **必须主动读 prompt**)
 
-| 角色 | 在哪段登场 | 详细职责 |
+每个角色登场前,**Claude 必须先用 Read 工具读完对应 agents/xxx.md 再行动**。不读不切换。这不是装饰,是强制流程。
+
+| 角色 | 在哪段登场 | 进场动作(必须执行) |
 |---|---|---|
-| Director | ④→⑤ | `agents/director.md` |
-| Storyboard Critic | ⑤ 提交前 | `agents/storyboard-critic.md` |
-| QC Reviewer | ⑧→⑨ | `agents/qc-reviewer.md` |
+| Director | ④ 写 brief 前 | `Read agents/director.md` 全文 → 按里面的"5 件事"框架和模板写 brief → 保存到 `<WORKDIR>/brief.md` |
+| Storyboard Critic | ⑤ 提交前 | `Read agents/storyboard-critic.md` 全文 → 按里面的 4 项 checklist 自检 brief → 不通过回 Director |
+| QC Reviewer | ⑧ 拿到 final.mp4 后 | `Read agents/qc-reviewer.md` 全文 → 按里面的 6 项硬性检查抽帧验收 → 写 `<WORKDIR>/qc_report.md` |
+
+**为什么强制**:这三份 agent prompt 是真实有用的检查清单,口头记"我在切换 Director 角色"等于没切。每次必须真读,才能保证你这次按角色干活。
 
 ## 推荐使用方式（最推荐）
 
@@ -147,13 +151,12 @@ Claude 在脚本跑完后**自动读 brief + qc_report + 封面帧**,把 META.md
 ## 详细参考(按需读)
 
 - `references/install.md` — 安装、依赖、Cookie、key 配置、已知陷阱
-- `references/brief-template.md` — 给小云雀的中文指令模板（基础版）
-- `references/xiaoyunque-structure-replication-best-brief-template.md` — 风筝项目实战硬化版（具体+禁止项+视觉锚点，防颜色/特征漂移等执行偏差）
-- `references/xiaoyunque-structure-prompt-modules.md` — 可乐高组合的 prompt 模块包（任务声明、结构锁定、反美化节奏等）
-- `references/prompt-factory.md` — **路径二完整操作指南**（结构复刻 Prompt Factory，无需小云雀也能用，推荐阅读）
+- `references/brief-template.md` — 给小云雀的中文 brief 模板(含**实战硬化版** + 防颜色漂移 checklist)
+- `references/xiaoyunque-structure-prompt-modules.md` — 可乐高组合的 prompt 模块包(任务声明、结构锁定、反美化节奏等)
+- `references/prompt-factory.md` — **路径二完整操作指南**(结构复刻 Prompt Factory,无需小云雀也能用)
 - `references/video-replication-craft.md` — 完整结构复刻工艺决策框架 + 常见失败模式对策 + 真实案例
 - `references/storyboard-schema.md` — JSON 结构
 - `references/join-strategy.md` — 衔接策略、长视频
 - `references/legal.md` — 法律红线 + 拒绝模板
 - `references/xyq-errors.md` — 小云雀 API 错误码字典
-- `agents/director.md` `agents/storyboard-critic.md` `agents/qc-reviewer.md` — 三个虚拟角色的工作 prompt
+- `agents/director.md` `agents/storyboard-critic.md` `agents/qc-reviewer.md` — 三个虚拟角色的工作 prompt(流程中**必须** Read)
