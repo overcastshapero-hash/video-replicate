@@ -125,11 +125,20 @@ bash scripts/next.sh <工作目录>
 不知道复刻哪条?用关键词找 Top N 爆款列表:
 
 ```bash
-bash scripts/viral_finder.sh xhs "AI 工具" 10   # 小红书,需 xhs login 一次
-bash scripts/viral_finder.sh douyin "..."         # 抖音暂未实现,会给提示
+bash scripts/viral_finder.sh xhs "AI 工具" 10      # 小红书,xhs CLI 直接出 JSON,需登录一次
+bash scripts/viral_finder.sh douyin "..." 10       # 抖音,脚本输出引导后 Claude 接管
 ```
 
-输出 `viral.json` + `viral.md`。挑一条链接,丢回主流水线复刻。
+**小红书路径**:`xhs CLI` 已装好,登录后直接出 `viral.json` + `viral.md`。
+
+**抖音路径**(设计妥协):抖音搜索 API 反爬严,所有第三方 MCP server 都靠 reverse engineering 维护,寿命短;且 MCP 工具无法从 shell 调用。脚本退化为**引导 Claude 接管**:
+
+1. 脚本输出明确指令 + 建好 `<OUT_DIR>/_claude_handoff.md`
+2. **Claude 检测到 `_claude_handoff.md` 后,主动用 `firecrawl_search` 或 `firecrawl_scrape` 抓抖音搜索结果**
+3. 失败回退:`web-search` skill(本地 Chrome)→ 实在不行告诉用户"本次失败,请直接给链接"
+4. 输出格式跟 xhs 分支保持一致(viral.json + viral.md)
+
+挑一条链接,丢回主流水线复刻。
 
 ### 后置:发布资产包 — `scripts/publish_pack.sh`
 
