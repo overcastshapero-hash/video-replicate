@@ -114,6 +114,36 @@ bash scripts/next.sh <工作目录>
 
 报告含:`final.mp4` 路径 / 原片对照(时长/镜头数/画幅) / `qc_report.md` / 小云雀 web_thread_link。
 
+## 可选扩展段(独立脚本,主流水线不依赖它们)
+
+### 前置:爆款检索 — `scripts/viral_finder.sh`
+
+不知道复刻哪条?用关键词找 Top N 爆款列表:
+
+```bash
+bash scripts/viral_finder.sh xhs "AI 工具" 10   # 小红书,需 xhs login 一次
+bash scripts/viral_finder.sh douyin "..."         # 抖音暂未实现,会给提示
+```
+
+输出 `viral.json` + `viral.md`。挑一条链接,丢回主流水线复刻。
+
+### 后置:发布资产包 — `scripts/publish_pack.sh`
+
+成片就绪后,生成发布前所有手动素材(不自动上传,避免封号风险):
+
+```bash
+bash scripts/publish_pack.sh <WORKDIR>
+```
+
+产出 `publish/`:
+- 3 张候选封面(从成片均匀抽帧)
+- `META.md` — Claude 自动填:3 个候选标题 / 抖音文案 / 小红书文案 / tag / 推荐封面 / 最佳发布时段
+- `checklist.md` — 发布前自检(法律 / 技术 / 内容 / 时机)
+
+Claude 在脚本跑完后**自动读 brief + qc_report + 封面帧**,把 META.md 占位符填成具体内容。你拿着这堆素材去手动发,2 分钟搞定。
+
+**为什么不自动上传**:抖音/小红书无公开发布 API,playwright 模拟容易封号;真正的瓶颈在标题/文案/封面/时段(系统化生成 30 分钟价值),不在那 2 分钟点击。
+
 ## 详细参考(按需读)
 
 - `references/install.md` — 安装、依赖、Cookie、key 配置、已知陷阱
