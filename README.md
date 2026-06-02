@@ -76,6 +76,19 @@ cd ~/.claude/skills/video-replicate
 
 它自动触发 skill,8 段流水线一气跑完。
 
+### 也可以手动调入口脚本(进阶)
+
+| 入口 | 何时用 | 说明 |
+|---|---|---|
+| `./install.sh` | 第一次装 | 装 ffmpeg / yt-dlp / f2 / PySceneDetect 等依赖 |
+| `bash scripts/check.sh` | 装完体检 / 排错 | 检查依赖、key、Cookie、xyq-nest-skill 都在不在 |
+| `./run.sh <链接>` | 启动一次新任务 | 下载 + 切镜 + 智能 demo,产工作目录给后续用 |
+| `bash scripts/next.sh <WORKDIR>` | 任务进行中,忘了走到哪 | 看 WORKDIR 文件状态,告诉你下一步该做啥 |
+
+**典型顺序**:`install.sh` → `check.sh`(一次性) → 之后每条片走 `run.sh` → 中途用 `next.sh` 查状态。
+
+更简单的:直接对 Claude Code 说"复刻这个:链接",上面这些它自动调。
+
 ---
 
 ## 为啥它值得用
